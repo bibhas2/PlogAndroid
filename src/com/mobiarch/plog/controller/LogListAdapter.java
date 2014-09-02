@@ -22,7 +22,7 @@ public class LogListAdapter extends BaseAdapter {
 	public LogListAdapter(List<LogEntry> list, SwipeDeleteHandler sdh) {
 		super();
 		this.list = list;
-		this.sdf = new SimpleDateFormat("E, d MMM yyyy 'at' k a");
+		this.sdf = new SimpleDateFormat("E, d MMM yyyy 'at' h:mm a");
 		this.deleteHandler = sdh;
 	}
 
