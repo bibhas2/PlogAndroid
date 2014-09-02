@@ -18,8 +18,8 @@ import com.mobiarch.plog.model.LogDAO;
 import com.mobiarch.plog.model.LogDataReceiver;
 import com.mobiarch.plog.model.LogEntry;
 
-public class LogListFragment extends Fragment implements LogDataReceiver {
-	private ArrayList<LogEntry> list;
+public class LogListFragment extends Fragment implements LogDataReceiver, SwipeDeleteHandler {
+	private ArrayList<LogEntry> logList;
 	private ListView listView;
 	private EditText logText;
 	private LogListAdapter logListAdapter;
@@ -30,20 +30,7 @@ public class LogListFragment extends Fragment implements LogDataReceiver {
 			Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.log_list, container,
 				false);
-		/*
-		list = new ArrayList<LogEntry>();
-		LogEntry e;
-		
-		e = new LogEntry();
-		e.setText("Oiled chain at mileage 1900");
-		e.setCreatedOn(new Date());
-		list.add(e);
-		
-		e = new LogEntry();
-		e.setText("Received mail");
-		e.setCreatedOn(new Date());
-		list.add(e);
-		*/
+
 		listView = (ListView) rootView.findViewById(R.id.logListView);
 		
 		Button saveBtn = (Button) rootView.findViewById(R.id.saveButton);
@@ -68,7 +55,7 @@ public class LogListFragment extends Fragment implements LogDataReceiver {
 		
 		e.setText(logText.getText().toString());
 		e.setCreatedOn(new Date());
-		list.add(e);
+		logList.add(e);
 		
 		dao.addLogEntry(e);
 		
@@ -79,14 +66,24 @@ public class LogListFragment extends Fragment implements LogDataReceiver {
 
 	@Override
 	public void onLogListAvailable(ArrayList<LogEntry> list) {
-		this.list = list;
+		this.logList = list;
 		
-		logListAdapter = new LogListAdapter(list);
+		logListAdapter = new LogListAdapter(list, this);
 		listView.setAdapter(logListAdapter);
 	}
 
 	@Override
 	public void onError(String message) {
 		
+	}
+
+	@Override
+	public boolean onSwipeDelete(ListView lv, int position) {
+		LogEntry e = logList.get(position);
+		
+		dao.deleteLogEntry(e);
+		logList.remove(position);
+		
+		return true;
 	}
 }

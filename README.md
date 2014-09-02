@@ -22,3 +22,7 @@ how the LogEntryText table is created in the DBHelper class.
 ###Custom ListView Adapter
 Almost all non-trival application using ListView will need to create its
 own UI for the cells. We do that here.
+
+###Swipe to Delete Row in ListView
+To delete a log entry, user needs to swipe the row to the right. We use
+animation to make it look pretty.

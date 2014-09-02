@@ -112,4 +112,45 @@ public class LogDAO {
 		};
 		task.execute(e);
 	}
+	
+	public void deleteLogEntry(LogEntry e) {
+		AsyncTask<LogEntry, Void, Void> task = new AsyncTask<LogEntry, Void, Void> () {
+			@Override
+			protected Void doInBackground(LogEntry... params) {
+				SQLiteDatabase db = null;
+				LogEntry e = params[0];
+
+				Logger.info("Deleting log entry with ID: %d", e.getLogId());
+				
+				try {
+					db = DBHelper.getConnection(context);
+					db.beginTransaction();
+					
+					SQLiteStatement stmt = db.compileStatement(
+						    "delete from LogEntry where _id=?");
+					stmt.bindLong(1, e.getLogId());
+					stmt.executeUpdateDelete();
+					
+					stmt = db.compileStatement(
+						    "delete from LogEntryText where docid=?");
+					stmt.bindLong(1, e.getLogId());
+					stmt.executeUpdateDelete();
+					
+					db.setTransactionSuccessful();
+				} catch (Exception ex) {
+					Logger.error("Failed to delete log entry.", ex);
+					receiver.onError("Failed to delete log entry.");
+				} finally {
+					if (db != null) {
+						db.endTransaction();
+						db.close();
+					}
+				}
+
+				return null;
+			}
+			
+		};
+		task.execute(e);
+	}
 }
