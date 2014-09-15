@@ -106,6 +106,13 @@ public class SwipeToDeleteTouchListener implements OnTouchListener {
 							public void onAnimationCancel(Animator anim) {
 							}
 						});
+			} else {
+				/*
+				 * There was not much movement, this is just a click. Fire the click
+				 * handler function.
+				 */
+				int position = listView.getPositionForView(view);
+				deleteHandler.onItemClick(position);
 			}
 
 			break;

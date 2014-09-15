@@ -14,4 +14,6 @@ public interface SwipeDeleteHandler {
 	 * return - This method should return true if the item was deleted. Else, return false.
 	 */
 	public boolean onSwipeDelete(ListView lv, int position);
+
+	public void onItemClick(int position);
 }

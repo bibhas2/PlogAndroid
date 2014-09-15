@@ -3,7 +3,13 @@ package com.mobiarch.plog.controller;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +24,10 @@ import com.mobiarch.plog.model.LogDAO;
 import com.mobiarch.plog.model.LogDataReceiver;
 import com.mobiarch.plog.model.LogEntry;
 
-public class LogListFragment extends Fragment implements LogDataReceiver, SwipeDeleteHandler {
+public class LogListFragment extends Fragment implements LogDataReceiver, SwipeDeleteHandler, android.content.DialogInterface.OnClickListener {
+	private static final int MENU_SHARE = 0;
+	private static final int MENU_COPY = 1;
+	private static final int MENU_DELETE = 2;
 	private static final String SEARCH_QUERY = "search-query";
 	private ArrayList<LogEntry> logList;
 	private ListView listView;
@@ -26,6 +35,7 @@ public class LogListFragment extends Fragment implements LogDataReceiver, SwipeD
 	private LogListAdapter logListAdapter;
 	private LogDAO dao;
 	private String searchQuery;
+	private int itemClickPosition = -1;
 	
 	/**
 	 * Fragments should not have non-zero arg constructor. That's because when Android
@@ -120,5 +130,39 @@ public class LogListFragment extends Fragment implements LogDataReceiver, SwipeD
 		logList.remove(position);
 		
 		return true;
+	}
+
+	@Override
+	public void onClick(DialogInterface arg0, int selectedItem) {
+		if (itemClickPosition < 0) {
+			return;
+		}
+		LogEntry e = logList.get(itemClickPosition);
+
+		if (selectedItem == MENU_DELETE) {
+			dao.deleteLogEntry(e);
+			logList.remove(itemClickPosition);
+			logListAdapter.notifyDataSetChanged();
+			itemClickPosition = -1;
+		} else if (selectedItem == MENU_COPY) {
+			ClipboardManager clipboard = (ClipboardManager)
+			        getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+			ClipData clip = ClipData.newPlainText("simple text", e.getText());
+			clipboard.setPrimaryClip(clip);
+		} else if (selectedItem == MENU_SHARE) {
+			Intent sendIntent = new Intent();
+			sendIntent.setAction(Intent.ACTION_SEND);
+			sendIntent.putExtra(Intent.EXTRA_TEXT, e.getText());
+			sendIntent.setType("text/plain");
+			startActivity(sendIntent);
+		}
+	}
+
+	@Override
+	public void onItemClick(int position) {
+		itemClickPosition = position;
+		
+    	String items[] = {"Share", "Copy", "Delete"};
+    	new AlertDialog.Builder(getActivity()).setItems(items, LogListFragment.this).create().show();
 	}
 }
