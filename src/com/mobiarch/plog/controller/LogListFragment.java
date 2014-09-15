@@ -71,8 +71,6 @@ public class LogListFragment extends Fragment implements LogDataReceiver, SwipeD
 		
 		if (searchQuery == null) {
 			//Normal mode
-			dao.getLogListAsync();
-
 			Button saveBtn = (Button) rootView.findViewById(R.id.saveButton);
 			
 			saveBtn.setOnClickListener(new OnClickListener() {
@@ -85,7 +83,6 @@ public class LogListFragment extends Fragment implements LogDataReceiver, SwipeD
 			logText = (EditText) rootView.findViewById(R.id.logText);
 		} else {
 			//Search result mode
-			dao.search(searchQuery);
 			//Hide the new entry area
 			View addEntryArea = rootView.findViewById(R.id.addEntryArea);
 			
@@ -93,6 +90,17 @@ public class LogListFragment extends Fragment implements LogDataReceiver, SwipeD
 		}
 		
 		return rootView;
+	}
+	@Override
+	public void onResume() {
+		super.onResume();
+		if (searchQuery == null) {
+			//Normal mode
+			dao.getLogListAsync();
+		} else {
+			//Search result mode
+			dao.search(searchQuery);
+		}
 	}
 
 	protected void addNewEntry() {
